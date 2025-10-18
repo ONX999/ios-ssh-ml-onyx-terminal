@@ -1,0 +1,71 @@
+/* Connection Section */
+"section.connection" = "Connection";
+"field.host" = "Host/IP";
+"field.port" = "Port";
+"field.username" = "Username";
+"field.password" = "Password";
+"toggle.connect_sftp" = "Connect SFTP too";
+"btn.connect" = "Connect";
+"btn.disconnect" = "Disconnect";
+
+/* Connection Status */
+"status.not_connected" = "Not connected";
+"status.connecting" = "Connecting %@";
+"status.connected" = "Connected: %@";
+"status.connect_failed" = "Connection failed: %@";
+"status.disconnected" = "Disconnected";
+
+/* Language Section */
+"section.language" = "Language";
+"picker.language" = "App Language";
+"language.zh" = "中文（繁體）";
+"language.en" = "English";
+"hint.language_effect" = "Changing language takes effect immediately.";
+
+/* UI Messages */
+"ui.not_connected" = "Not connected";
+"ui.fill_then_connect" = "Fill host info then tap Connect";
+
+/* Menu Items */
+"menu.clear" = "Clear terminal";
+"menu.resize" = "Resize";
+
+/* SFTP Status */
+"sftp.not_connected" = "SFTP not connected";
+"sftp.need_connect" = "Please connect SFTP first";
+"sftp.connected" = "SFTP connected";
+"sftp.connect_failed" = "SFTP connect failed: %@";
+
+/* SFTP UI */
+"label.upload_to" = "Upload to:";
+"label.download_path" = "Download path:";
+"label.list_dir" = "List path:";
+"ph.remote_dir" = "Remote directory, e.g. ~/models";
+"ph.remote_file" = "Remote file, e.g. ~/output.log";
+"btn.select_upload" = "Pick file";
+"btn.download_to_device" = "Download to device…";
+"btn.list" = "List";
+"btn.done" = "Done";
+"btn.ok" = "OK";
+
+/* Sheets and Alerts */
+"sheet.dir_list" = "Directory";
+"alert.title" = "Notice";
+"alert.fill_all" = "Please fill all required fields";
+
+/* Toast Messages */
+"toast.upload_ok" = "Uploaded: %@ -> %@";
+"toast.upload_fail" = "Upload failed: %@";
+"toast.download_fail" = "Download failed: %@";
+"toast.list_fail" = "List failed: %@";
+
+/* Directory Info */
+"dir.path" = "Path: %@";
+
+/* Quick Actions */
+"qa.llama_help" = "llama --help";
+"qa.ollama_llama3" = "ollama llama3";
+"qa.hf_env" = "HF env";
+"qa.conda_envs" = "conda envs";
+"qa.tmux_attach" = "tmux attach";
+"qa.nvidia_smi" = "nvidia-smi";
