@@ -1,0 +1,89 @@
+# Fastfile for Onyx Terminal
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Run SwiftLint"
+  lane :lint do
+    swiftlint(
+      mode: :lint,
+      config_file: ".swiftlint.yml",
+      raise_if_swiftlint_error: true,
+      ignore_exit_status: false
+    )
+  end
+
+  desc "Run unit and UI tests"
+  lane :test do
+    scan(
+      project: "OnyxTerminal.xcodeproj",
+      scheme: "OnyxTerminal",
+      device: "iPhone 15",
+      clean: true,
+      code_coverage: true,
+      output_directory: "./fastlane/test_output",
+      output_types: "html,junit"
+    )
+  end
+
+  desc "Build Debug version (no signing required)"
+  lane :build_debug do
+    gym(
+      project: "OnyxTerminal.xcodeproj",
+      scheme: "OnyxTerminal",
+      configuration: "Debug",
+      clean: true,
+      skip_codesigning: true,
+      skip_package_ipa: true,
+      destination: "generic/platform=iOS Simulator",
+      derived_data_path: "./build",
+      output_directory: "./build"
+    )
+  end
+
+  desc "Build Release version"
+  lane :build_release do
+    # TODO: Implement proper code signing with match or manual provisioning
+    # For now, this is a placeholder
+    
+    UI.important "⚠️  Release build requires code signing setup"
+    UI.important "TODO: Configure Match or manual provisioning profiles"
+    UI.important "TODO: Set up App Store Connect API key for TestFlight upload"
+    
+    # Uncomment and configure when ready:
+    # gym(
+    #   project: "OnyxTerminal.xcodeproj",
+    #   scheme: "OnyxTerminal",
+    #   configuration: "Release",
+    #   clean: true,
+    #   export_method: "app-store",
+    #   output_directory: "./build"
+    # )
+  end
+
+  desc "Upload to TestFlight"
+  lane :beta do
+    # TODO: Implement TestFlight upload
+    # Requires:
+    # 1. App Store Connect API key
+    # 2. Proper code signing (match or manual)
+    # 3. Build number management
+    
+    UI.important "⚠️  TestFlight upload not yet configured"
+    UI.important "TODO: Set up App Store Connect API key"
+    UI.important "TODO: Configure code signing for release builds"
+    
+    # Uncomment and configure when ready:
+    # build_release
+    # upload_to_testflight(
+    #   api_key_path: ENV["APP_STORE_CONNECT_API_KEY_PATH"],
+    #   skip_waiting_for_build_processing: true
+    # )
+  end
+
+  desc "Run all quality checks (lint + test)"
+  lane :quality do
+    lint
+    test
+  end
+end
