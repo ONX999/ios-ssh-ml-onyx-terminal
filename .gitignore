@@ -5,6 +5,23 @@
 ## User settings
 xcuserdata/
 
+## Xcode 8 and earlier
+*.xcscmblueprint
+*.xccheckout
+
+## Xcode Patch
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+
+# Build
+build/
+DerivedData/
+
+## Various settings
 ## Compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
 *.xcscmblueprint
 *.xccheckout
@@ -22,6 +39,19 @@ DerivedData/
 *.perspectivev3
 !default.perspectivev3
 
+## Other
+*.moved-aside
+*.xcuserstate
+
+## Obj-C/Swift specific
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
 ## Xcode Patch
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
@@ -44,6 +74,7 @@ DerivedData/
 Packages/
 Package.pins
 Package.resolved
+*.xcodeproj
 *.swiftpm
 .swiftpm/
 .build/
@@ -55,6 +86,7 @@ Package.resolved
 # https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
 #
 Pods/
+*.xcworkspace
 #
 # Add this line if you want to avoid checking in source code from the Xcode workspace
 # *.xcworkspace
@@ -63,6 +95,12 @@ Pods/
 #
 # Add this line if you want to avoid checking in source code from Carthage dependencies.
 Carthage/Checkouts
+Carthage/Build
+
+# fastlane
+#
+# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
+# screenshots whenever they are needed.
 Carthage/Build/
 
 # Accio dependency management
@@ -80,6 +118,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+fastlane/README.md
 fastlane/build_output
 *.ipa
 *.dSYM.zip
@@ -91,6 +130,9 @@ fastlane/build_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+# macOS
+.DS_Store
 
 # Ruby/Bundler
 vendor/bundle/
@@ -107,6 +149,17 @@ vendor/bundle/
 *.swp
 *.swo
 *~
+
+# IDEs
+.vscode/
+.idea/
+
+# Test artifacts
+*.gcda
+*.gcov
+coverage/
+*.profdata
+*.profraw
 .*.sw?
 
 # Test coverage

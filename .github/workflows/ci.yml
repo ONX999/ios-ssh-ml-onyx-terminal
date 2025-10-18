@@ -2,6 +2,9 @@ name: iOS CI
 
 on:
   push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
     branches: [ "main", "develop" ]
   pull_request:
     branches: [ "main", "develop" ]
@@ -22,11 +25,24 @@ jobs:
     - name: Show Xcode version
       run: xcodebuild -version
     
+    - name: Show available SDKs
+      run: xcodebuild -showsdks
+    
+    - name: Cache Ruby gems
+      uses: actions/cache@v4
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-gems-
+    
+    - name: Cache Swift Package Manager
     - name: Cache SPM dependencies
       uses: actions/cache@v4
       with:
         path: |
           .build
+          ~/Library/Caches/org.swift.swiftpm
           ~/Library/Developer/Xcode/DerivedData
         key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
         restore-keys: |
@@ -46,6 +62,10 @@ jobs:
         ruby-version: '3.2'
         bundler-cache: true
     
+    - name: Install Bundler
+      run: gem install bundler
+    
+    - name: Install dependencies
     - name: Install Bundler dependencies
       run: |
         bundle config path vendor/bundle
@@ -64,6 +84,44 @@ jobs:
       run: bundle exec fastlane lint
       continue-on-error: true
     
+    - name: Build Debug
+      run: |
+        xcodebuild -project OnyxTerminal.xcodeproj \
+          -scheme OnyxTerminal \
+          -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+          -configuration Debug \
+          clean build \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+    
+    - name: Run Tests
+      run: |
+        xcodebuild test \
+          -project OnyxTerminal.xcodeproj \
+          -scheme OnyxTerminal \
+          -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+          -enableCodeCoverage YES \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+      continue-on-error: true
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: fastlane/test_output
+        if-no-files-found: ignore
+    
+    - name: Upload build artifacts
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: build
+        if-no-files-found: ignore
     - name: Resolve Swift Package Dependencies
       run: xcodebuild -resolvePackageDependencies -workspace OnyxTerminal.xcworkspace -scheme OnyxTerminal
     

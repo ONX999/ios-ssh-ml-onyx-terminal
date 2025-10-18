@@ -1,0 +1,77 @@
+/* Connection Section */
+"section.connection" = "Connection Settings";
+"field.host" = "Host";
+"field.port" = "Port";
+"field.username" = "Username";
+"field.password" = "Password";
+"toggle.connect_sftp" = "Also connect SFTP";
+"btn.connect" = "Connect";
+"btn.disconnect" = "Disconnect";
+
+/* Status Messages */
+"status.not_connected" = "Not connected";
+"status.connecting" = "Connecting to %@";
+"status.connected" = "Connected: %@";
+"status.connect_failed" = "Connection failed: %@";
+"status.disconnected" = "Disconnected";
+"status.error" = "Error: %@";
+
+/* SFTP Status */
+"sftp.not_connected" = "SFTP not connected";
+"sftp.connected" = "SFTP connected";
+"sftp.connect_failed" = "SFTP connection failed: %@";
+"sftp.need_connect" = "Please connect SFTP first";
+
+/* Language Section */
+"section.language" = "Language";
+"picker.language" = "Select Language";
+"language.zh" = "繁體中文";
+"language.en" = "English";
+"hint.language_effect" = "Language changes take effect immediately";
+
+/* UI Messages */
+"ui.not_connected" = "Not Connected";
+"ui.fill_then_connect" = "Fill in the connection details and press Connect";
+
+/* Menu Items */
+"menu.clear" = "Clear Terminal";
+"menu.resize" = "Resize Terminal";
+
+/* SFTP Panel */
+"label.upload_to" = "Upload to:";
+"ph.remote_dir" = "Remote directory (e.g., /home/user)";
+"btn.select_upload" = "Select File";
+"label.download_path" = "Download:";
+"ph.remote_file" = "Remote file path";
+"btn.download_to_device" = "Download";
+"label.list_dir" = "List directory:";
+"ph.dir" = "Directory path";
+"btn.list" = "List";
+
+/* Sheet Titles */
+"sheet.dir_list" = "Directory Listing";
+
+/* Buttons */
+"btn.done" = "Done";
+"btn.ok" = "OK";
+
+/* Alerts */
+"alert.title" = "Notice";
+"alert.fill_all" = "Please fill in all required fields";
+
+/* Toast Messages */
+"toast.upload_ok" = "Upload successful: %@ → %@";
+"toast.upload_fail" = "Upload failed: %@";
+"toast.download_fail" = "Download failed: %@";
+"toast.list_fail" = "List directory failed: %@";
+
+/* Directory Listing */
+"dir.path" = "Directory: %@";
+
+/* Quick Actions */
+"qa.llama_help" = "llama help";
+"qa.ollama_llama3" = "ollama llama3";
+"qa.hf_env" = "HF env";
+"qa.conda_envs" = "conda envs";
+"qa.tmux_attach" = "tmux attach";
+"qa.nvidia_smi" = "nvidia-smi";

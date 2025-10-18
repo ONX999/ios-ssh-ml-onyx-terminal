@@ -10,7 +10,8 @@ final class SSHTerminalSession: NSObject, ObservableObject, TerminalViewDelegate
     @Published var isConnecting = false
     @Published var statusLine: String = NSLocalizedString("status.not_connected", comment: "未連線")
     private var config: SSHConnection?
-    private let sshClient = NIOSSHClient()
+    private let sshClient: SSHClientProtocol = NIOSSHClientAdapter()
+    
     override init() {
         super.init()
         terminalView.delegate = self
@@ -39,6 +40,7 @@ final class SSHTerminalSession: NSObject, ObservableObject, TerminalViewDelegate
             }
         }
     }
+    
     func connect(_ config: SSHConnection) async {
         guard !isConnecting, !isConnected else { return }
         self.isConnecting = true
@@ -46,10 +48,19 @@ final class SSHTerminalSession: NSObject, ObservableObject, TerminalViewDelegate
         self.config = config
         let cols = Int(terminalView.getTerminal().cols)
         let rows = Int(terminalView.getTerminal().rows)
-        var cfg = NIOSSHClient.Config(host: config.host, port: config.port, username: config.username, password: config.password)
-        cfg.cols = cols; cfg.rows = rows
+        
+        let sshConfig = SSHConnectionConfig(
+            host: config.host,
+            port: config.port,
+            username: config.username,
+            authMethod: .password(config.password),
+            terminalType: "xterm-256color",
+            cols: cols,
+            rows: rows
+        )
+        
         do {
-            try await sshClient.connect(cfg)
+            try await sshClient.connect(sshConfig)
             sshClient.resize(cols: cols, rows: rows)
             self.isConnected = true
             self.statusLine = String(format: NSLocalizedString("status.connected", comment: "已連線：%@"), "\(config.username)@\(config.host)")
@@ -59,25 +70,31 @@ final class SSHTerminalSession: NSObject, ObservableObject, TerminalViewDelegate
         }
         self.isConnecting = false
     }
+    
     func disconnect() {
         Task { try? await sshClient.close() }
         isConnected = false
         statusLine = NSLocalizedString("status.disconnected", comment: "已斷線")
     }
+    
     func sendCommand(_ text: String) {
         let cmd = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cmd.isEmpty else { return }
         terminalView.send(text: cmd + "\r\n")
     }
+    
     func send(source: TerminalView, data: ArraySlice<UInt8>) {
         var buf = ByteBufferAllocator().buffer(capacity: data.count)
         buf.writeBytes(Array(data))
         sshClient.send(buf)
     }
+    
     func scrolled(source: TerminalView, position: Double) {}
     func bell(source: TerminalView) {}
     func setTerminalTitle(source: TerminalView, title: String) {}
-    func sizeChanged(source: TerminalView, newCols: Int, newRows: Int) { sshClient.resize(cols: newCols, rows: newRows) }
+    func sizeChanged(source: TerminalView, newCols: Int, newRows: Int) {
+        sshClient.resize(cols: newCols, rows: newRows)
+    }
     func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {}
 }
 

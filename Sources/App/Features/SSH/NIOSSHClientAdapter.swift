@@ -2,6 +2,81 @@ import Foundation
 import NIO
 import NIOSSH
 
+/// Adapter to make NIOSSHClient conform to SSHClientProtocol
+public final class NIOSSHClientAdapter: SSHClientProtocol {
+    private let client = NIOSSHClient()
+    
+    public var isConnected: Bool {
+        client.state == .connected
+    }
+    
+    public var onStdout: ((ByteBuffer) -> Void)? {
+        get { client.onStdout }
+        set { client.onStdout = newValue }
+    }
+    
+    public var onStderr: ((ByteBuffer) -> Void)? {
+        get { client.onStderr }
+        set { client.onStderr = newValue }
+    }
+    
+    public var onError: ((Error) -> Void)? {
+        get { client.onError }
+        set { client.onError = newValue }
+    }
+    
+    public init() {}
+    
+    public func connect(_ config: SSHConnectionConfig) async throws {
+        let password: String
+        switch config.authMethod {
+        case .password(let pwd):
+            password = pwd
+        case .privateKey:
+            // TODO: Implement private key authentication
+            throw SSHError.authenticationFailed
+        }
+        
+        let nioConfig = NIOSSHClient.Config(
+            host: config.host,
+            port: config.port,
+            username: config.username,
+            password: password,
+            terminalType: config.terminalType,
+            cols: config.cols,
+            rows: config.rows
+        )
+        
+        try await client.connect(nioConfig)
+    }
+    
+    public func send(_ data: ByteBuffer) {
+        client.send(data)
+    }
+    
+    public func resize(cols: Int, rows: Int) {
+        client.resize(cols: cols, rows: rows)
+    }
+    
+    public func close() async throws {
+        try await client.close()
+    }
+    
+    public func openSFTPSession() async throws -> SFTPClientProtocol {
+        guard isConnected else {
+            throw SSHError.notConnected
+        }
+        
+        // TODO: Implement SFTP session over existing SSH connection
+        // For now, return stub implementation
+        let sftp = StubSFTPClient()
+        try await sftp.connect()
+        return sftp
+    }
+}
+
+// MARK: - Original NIOSSHClient Implementation
+
 public final class NIOSSHClient {
     public struct Config {
         public var host: String
