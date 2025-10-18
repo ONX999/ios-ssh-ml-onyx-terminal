@@ -1,0 +1,31 @@
+# Scanfile configuration for running tests
+
+# Workspace to use
+workspace("OnyxTerminal.xcworkspace")
+
+# Scheme to test
+scheme("OnyxTerminal")
+
+# Devices to test on
+devices(["iPhone 15 Pro", "iPad Pro (12.9-inch) (6th generation)"])
+
+# Clean before building
+clean(true)
+
+# Enable code coverage
+code_coverage(true)
+
+# Output directory
+output_directory("fastlane/test_output")
+
+# Output types
+output_types("html,junit")
+
+# Derived data path
+derived_data_path("DerivedData")
+
+# Result bundle
+result_bundle(true)
+
+# Fail build on test failure
+fail_build(true)

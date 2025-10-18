@@ -22,6 +22,14 @@ build/
 DerivedData/
 
 ## Various settings
+## Compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
+*.xcscmblueprint
+*.xccheckout
+
+## Compatibility with Xcode 3 and earlier (ignoring not required starting Xcode 4)
+build/
+DerivedData/
+*.moved-aside
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -44,6 +52,21 @@ DerivedData/
 ## Playgrounds
 timeline.xctimeline
 playground.xcworkspace
+## Xcode Patch
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/xcshareddata/
+
+# XcodeGen
+*.xcodeproj
+*.xcworkspace
+
+## Gcc Patch
+/*.gcno
 
 # Swift Package Manager
 #
@@ -52,6 +75,7 @@ Packages/
 Package.pins
 Package.resolved
 *.xcodeproj
+*.swiftpm
 .swiftpm/
 .build/
 
@@ -63,6 +87,9 @@ Package.resolved
 #
 Pods/
 *.xcworkspace
+#
+# Add this line if you want to avoid checking in source code from the Xcode workspace
+# *.xcworkspace
 
 # Carthage
 #
@@ -74,6 +101,16 @@ Carthage/Build
 #
 # It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
 # screenshots whenever they are needed.
+Carthage/Build/
+
+# Accio dependency management
+Dependencies/
+.accio/
+
+# fastlane
+#
+# It is recommended to not store the screenshots in the git repo.
+# Instead, use fastlane to re-generate the screenshots whenever they are needed.
 # For more information about the recommended setup visit:
 # https://docs.fastlane.tools/best-practices/source-control/#source-control
 
@@ -82,6 +119,10 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 fastlane/README.md
+fastlane/build_output
+*.ipa
+*.dSYM.zip
+*.dSYM
 
 # Code Injection
 #
@@ -92,6 +133,17 @@ iOSInjectionProject/
 
 # macOS
 .DS_Store
+
+# Ruby/Bundler
+vendor/bundle/
+.bundle/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
 
 # Temporary files
 *.swp
@@ -108,3 +160,13 @@ iOSInjectionProject/
 coverage/
 *.profdata
 *.profraw
+.*.sw?
+
+# Test coverage
+*.gcov
+*.gcda
+*.profdata
+coverage.lcov
+
+# CI artifacts
+*.log

@@ -1,10 +1,16 @@
 # Fastfile for Onyx Terminal
+# Onyx Terminal Fastlane Configuration
+# This file contains the fastlane.tools configuration
 
 default_platform(:ios)
 
 platform :ios do
   desc "Run SwiftLint"
   lane :lint do
+    # Install SwiftLint if not available
+    sh("which swiftlint || brew install swiftlint") rescue nil
+    
+    # Run SwiftLint
     swiftlint(
       mode: :lint,
       config_file: ".swiftlint.yml",
@@ -13,77 +19,132 @@ platform :ios do
     )
   end
 
-  desc "Run unit and UI tests"
+  desc "Run tests"
   lane :test do
+    # Generate Xcode project if needed
+    if !File.exist?("OnyxTerminal.xcodeproj")
+      sh("xcodegen generate")
+    end
+
+    # Run tests
     scan(
-      project: "OnyxTerminal.xcodeproj",
+      workspace: "OnyxTerminal.xcworkspace",
       scheme: "OnyxTerminal",
-      device: "iPhone 15",
+      device: "iPhone 15 Pro",
       clean: true,
       code_coverage: true,
-      output_directory: "./fastlane/test_output",
-      output_types: "html,junit"
+      derived_data_path: "DerivedData",
+      result_bundle: true,
+      output_directory: "fastlane/test_output",
+      output_types: "html,junit",
+      fail_build: true
     )
   end
 
-  desc "Build Debug version (no signing required)"
+  desc "Build debug version"
   lane :build_debug do
+    # Generate Xcode project if needed
+    if !File.exist?("OnyxTerminal.xcodeproj")
+      sh("xcodegen generate")
+    end
+
+    # Build for debug
     gym(
-      project: "OnyxTerminal.xcodeproj",
+      workspace: "OnyxTerminal.xcworkspace",
       scheme: "OnyxTerminal",
       configuration: "Debug",
-      clean: true,
-      skip_codesigning: true,
+      derived_data_path: "DerivedData",
+      output_directory: "fastlane/build_output",
+      output_name: "OnyxTerminal-Debug.ipa",
+      export_method: "development",
       skip_package_ipa: true,
-      destination: "generic/platform=iOS Simulator",
-      derived_data_path: "./build",
-      output_directory: "./build"
+      skip_archive: false,
+      clean: true,
+      build_path: "build"
     )
   end
 
-  desc "Build Release version"
+  desc "Build release version"
   lane :build_release do
-    # TODO: Implement proper code signing with match or manual provisioning
-    # For now, this is a placeholder
+    # Generate Xcode project if needed
+    if !File.exist?("OnyxTerminal.xcodeproj")
+      sh("xcodegen generate")
+    end
+
+    # TODO: Configure signing with match or manual certificates
+    # For now, this is a placeholder that will need proper code signing setup
     
-    UI.important "⚠️  Release build requires code signing setup"
-    UI.important "TODO: Configure Match or manual provisioning profiles"
-    UI.important "TODO: Set up App Store Connect API key for TestFlight upload"
+    UI.important("⚠️  Release build requires code signing configuration")
+    UI.important("📝 TODO: Set up fastlane match or configure manual signing")
     
-    # Uncomment and configure when ready:
+    # Uncomment and configure when signing is set up:
     # gym(
-    #   project: "OnyxTerminal.xcodeproj",
+    #   workspace: "OnyxTerminal.xcworkspace",
     #   scheme: "OnyxTerminal",
     #   configuration: "Release",
-    #   clean: true,
+    #   derived_data_path: "DerivedData",
+    #   output_directory: "fastlane/build_output",
+    #   output_name: "OnyxTerminal-Release.ipa",
     #   export_method: "app-store",
-    #   output_directory: "./build"
+    #   clean: true
     # )
   end
 
-  desc "Upload to TestFlight"
-  lane :beta do
-    # TODO: Implement TestFlight upload
-    # Requires:
-    # 1. App Store Connect API key
-    # 2. Proper code signing (match or manual)
-    # 3. Build number management
-    
-    UI.important "⚠️  TestFlight upload not yet configured"
-    UI.important "TODO: Set up App Store Connect API key"
-    UI.important "TODO: Configure code signing for release builds"
-    
-    # Uncomment and configure when ready:
-    # build_release
-    # upload_to_testflight(
-    #   api_key_path: ENV["APP_STORE_CONNECT_API_KEY_PATH"],
-    #   skip_waiting_for_build_processing: true
-    # )
-  end
-
-  desc "Run all quality checks (lint + test)"
-  lane :quality do
+  desc "Run all checks (lint + test + build_debug)"
+  lane :ci do
     lint
     test
+    build_debug
+  end
+
+  desc "Deploy to TestFlight"
+  lane :beta do
+    # Generate Xcode project if needed
+    if !File.exist?("OnyxTerminal.xcodeproj")
+      sh("xcodegen generate")
+    end
+
+    # Create App Store Connect API Key from environment variables
+    begin
+      private_key = Base64.decode64(ENV["ASC_PRIVATE_KEY"])
+    rescue StandardError => e
+      UI.user_error!("Failed to decode ASC_PRIVATE_KEY. Ensure it's a valid base64-encoded .p8 file: #{e.message}")
+    end
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_content: private_key,
+      duration: 1200, # optional (maximum 1200)
+      in_house: false
+    )
+
+    # Increment build number based on latest TestFlight build
+    increment_build_number(
+      build_number: latest_testflight_build_number(
+        api_key: api_key,
+        app_identifier: "com.onx999.OnyxTerminal"
+      ) + 1
+    )
+
+    # Build the app for release
+    gym(
+      workspace: "OnyxTerminal.xcworkspace",
+      scheme: "OnyxTerminal",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "fastlane/build_output",
+      output_name: "OnyxTerminal-Release.ipa",
+      clean: true
+    )
+
+    # Upload to TestFlight
+    pilot(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true,
+      distribute_external: false, # Internal testing only by default
+      notify_external_testers: false,
+      ipa: "fastlane/build_output/OnyxTerminal-Release.ipa"
+    )
   end
 end

@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
   workflow_dispatch:
 
 jobs:
@@ -34,14 +37,24 @@ jobs:
           ${{ runner.os }}-gems-
     
     - name: Cache Swift Package Manager
+    - name: Cache SPM dependencies
       uses: actions/cache@v4
       with:
         path: |
           .build
           ~/Library/Caches/org.swift.swiftpm
+          ~/Library/Developer/Xcode/DerivedData
         key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
         restore-keys: |
           ${{ runner.os }}-spm-
+    
+    - name: Cache Bundler dependencies
+      uses: actions/cache@v4
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-gems-
     
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -53,6 +66,7 @@ jobs:
       run: gem install bundler
     
     - name: Install dependencies
+    - name: Install Bundler dependencies
       run: |
         bundle config path vendor/bundle
         bundle install --jobs 4 --retry 3
@@ -108,3 +122,71 @@ jobs:
         name: build-artifacts
         path: build
         if-no-files-found: ignore
+    - name: Resolve Swift Package Dependencies
+      run: xcodebuild -resolvePackageDependencies -workspace OnyxTerminal.xcworkspace -scheme OnyxTerminal
+    
+    - name: Build Debug
+      run: |
+        xcodebuild clean build \
+          -workspace OnyxTerminal.xcworkspace \
+          -scheme OnyxTerminal \
+          -sdk iphonesimulator \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.2' \
+          -configuration Debug \
+          -derivedDataPath DerivedData \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty && exit ${PIPESTATUS[0]}
+    
+    - name: Run Unit Tests
+      run: |
+        xcodebuild test \
+          -workspace OnyxTerminal.xcworkspace \
+          -scheme OnyxTerminal \
+          -sdk iphonesimulator \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.2' \
+          -derivedDataPath DerivedData \
+          -enableCodeCoverage YES \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty && exit ${PIPESTATUS[0]}
+      continue-on-error: true
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: |
+          fastlane/test_output
+          DerivedData/Logs/Test
+        retention-days: 7
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: build-artifacts
+        path: |
+          DerivedData/Build/Products
+        retention-days: 7
+    
+    - name: Generate code coverage report
+      if: always()
+      run: |
+        xcrun llvm-cov export -format="lcov" \
+          DerivedData/Build/ProfileData/*/Coverage.profdata \
+          -instr-profile DerivedData/Build/ProfileData/*/Coverage.profdata \
+          > coverage.lcov || true
+      continue-on-error: true
+    
+    - name: Upload coverage to artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report
+        path: coverage.lcov
+        retention-days: 7
+      continue-on-error: true

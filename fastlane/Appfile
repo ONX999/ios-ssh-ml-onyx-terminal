@@ -3,3 +3,6 @@ apple_id("") # Your Apple Developer Portal email address
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile
+app_identifier("com.onx999.OnyxTerminal")
+apple_id(ENV["APPLE_ID"])
+team_id(ENV["DEV_TEAM_ID"])

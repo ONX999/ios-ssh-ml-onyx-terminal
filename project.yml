@@ -4,6 +4,10 @@ options:
   deploymentTarget:
     iOS: "16.0"
   bundleIdPrefix: com.onx999
+  developmentLanguage: zh-Hant
+  knownRegions:
+    - zh-Hant
+    - en
 packages:
   SwiftTerm:
     url: https://github.com/migueldeicaza/SwiftTerm
@@ -23,6 +27,10 @@ targets:
       - path: Sources/App
     resources:
       - path: Sources/App/Resources
+      - path: Sources/Features
+      - path: Sources/Core
+    resources:
+      - path: Sources/App/Localization
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.onx999.OnyxTerminal
@@ -33,6 +41,7 @@ targets:
         PRODUCT_NAME: Onyx Terminal
         DEVELOPMENT_TEAM: ""
         CODE_SIGN_STYLE: Automatic
+        ENABLE_TESTING_SEARCH_PATHS: YES
     dependencies:
       - package: SwiftTerm
       - package: Shout
