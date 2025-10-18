@@ -1,0 +1,47 @@
+# Configuration for GitHub Copilot coding agent for the Onyx Terminal repository
+# See: Best practices for Copilot coding agent in your repository
+
+agent:
+  name: onyx-copilot-agent
+  description: |
+    Automated coding agent configuration for Onyx Terminal (iOS SSH/SFTP app).
+    Provides guided scope, constraints, and default tasks for automated changes
+    created by the Copilot coding agent.
+
+onboarding:
+  - step: read-instructions
+    path: .github/copilot-instructions.md
+    description: Read the repository-specific instructions and coding standards.
+  - step: run-structure-check
+    command: ./Tools/check-structure.sh
+    description: Run repository structure validation script (if available) to verify layout.
+
+scopes:
+  - path: Sources/**
+    description: Main app source files. Agent may modify, add or refactor Swift code here.
+  - path: Tests/**
+    description: Unit and UI tests. Agent may add or update tests to validate changes.
+  - path: project.yml
+    description: Allowed to update package/dependency pins when necessary.
+  - path: .github/**
+    description: CI/workflow and agent configuration files. Agent can add/update workflows and agent configs.
+
+forbidden:
+  - path: fastlane/**
+    reason: Manual deployment and credentials configuration should remain owner-managed.
+  - path: Secrets/**
+    reason: Never modify or add secrets to repo files.
+
+rules:
+  - name: require-local-tests
+    description: Run or add unit tests for substantive behavior changes. If adding code, include at least one unit test.
+  - name: respect-localization
+    description: All user-facing strings must use LocalizedStringKey or NSLocalizedString and be added to localization files when appropriate.
+
+communication:
+  pull_request_template: |
+    Automated changes created by the Copilot coding agent. Review for security and localization.
+    Summary of changes:
+    - What was changed and why
+    - Tests added/updated
+    - Manual verification steps
