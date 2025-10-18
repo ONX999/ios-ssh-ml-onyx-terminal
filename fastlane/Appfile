@@ -1,0 +1,3 @@
+app_identifier("com.onx999.OnyxTerminal")
+apple_id(ENV["APPLE_ID"])
+team_id(ENV["DEV_TEAM_ID"])

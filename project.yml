@@ -3,6 +3,7 @@ options:
   minimumXcodeGenVersion: 2.38.0
   deploymentTarget:
     iOS: "16.0"
+  bundleIdPrefix: com.onx999
 packages:
   SwiftTerm:
     url: https://github.com/migueldeicaza/SwiftTerm
@@ -20,6 +21,8 @@ targets:
     deploymentTarget: "16.0"
     sources:
       - path: Sources/App
+      - path: Sources/Features
+      - path: Sources/Core
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.onx999.OnyxTerminal
@@ -27,9 +30,38 @@ targets:
         SWIFT_VERSION: 5.9
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         PRODUCT_NAME: Onyx Terminal
+        ENABLE_TESTING_SEARCH_PATHS: YES
     dependencies:
       - package: SwiftTerm
       - package: Shout
       - package: NIOSSH
     scheme:
-      testTargets: []
+      testTargets:
+        - OnyxTerminalTests
+        - OnyxTerminalUITests
+  
+  OnyxTerminalTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: Tests/Unit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.onx999.OnyxTerminalTests
+        SWIFT_VERSION: 5.9
+    dependencies:
+      - target: OnyxTerminal
+  
+  OnyxTerminalUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: Tests/UITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.onx999.OnyxTerminalUITests
+        SWIFT_VERSION: 5.9
+    dependencies:
+      - target: OnyxTerminal
