@@ -1,0 +1,150 @@
+name: Agent Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'project.yml'
+      - '.github/**'
+  workflow_dispatch:
+
+jobs:
+  validate-structure:
+    name: Repository Structure Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make structure check script executable
+        run: chmod +x ./Tools/check-structure.sh
+
+      - name: Run repository structure validation
+        run: ./Tools/check-structure.sh
+
+      - name: List changed files
+        run: |
+          echo "## Changed Files in this PR" >> $GITHUB_STEP_SUMMARY
+          git diff --name-only origin/main...HEAD | while read file; do
+            echo "- \`$file\`" >> $GITHUB_STEP_SUMMARY
+          done
+
+  validate-xcodegen:
+    name: XcodeGen Project Validation
+    runs-on: macos-latest
+    if: contains(github.event.pull_request.head.ref, 'copilot') || contains(github.event.pull_request.title, 'agent') || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Validate project generation
+        run: |
+          echo "Generating Xcode project..."
+          xcodegen generate
+          echo "✅ XcodeGen project generation successful"
+
+      - name: Check for project file
+        run: |
+          if [ -f "OnyxTerminal.xcodeproj/project.pbxproj" ]; then
+            echo "✅ Xcode project file created successfully"
+            echo "## XcodeGen Validation Results" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Project generation: **SUCCESS**" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Project file exists: **YES**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Xcode project file not found"
+            echo "## XcodeGen Validation Results" >> $GITHUB_STEP_SUMMARY
+            echo "- ❌ Project generation: **FAILED**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  validate-localization:
+    name: Localization Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check localization files exist
+        run: |
+          echo "## Localization Validation" >> $GITHUB_STEP_SUMMARY
+          
+          # Check English localization
+          if [ -f "Sources/App/Resources/en.lproj/Localizable.strings" ]; then
+            echo "- ✅ English localization: **EXISTS**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ English localization: **MISSING**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Traditional Chinese localization
+          if [ -f "Sources/App/Resources/zh-Hant.lproj/Localizable.strings" ]; then
+            echo "- ✅ Traditional Chinese localization: **EXISTS**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Traditional Chinese localization: **MISSING**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Check for LocalizedStringKey usage in changed Swift files
+        run: |
+          echo "## LocalizedStringKey Usage Check" >> $GITHUB_STEP_SUMMARY
+          
+          # Get changed Swift files
+          changed_swift_files=$(git diff --name-only origin/main...HEAD | grep '\.swift$' || true)
+          
+          if [ -n "$changed_swift_files" ]; then
+            echo "Checking Swift files for localization compliance..." >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$changed_swift_files" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            
+            # Check for hardcoded strings (basic check)
+            for file in $changed_swift_files; do
+              if [ -f "$file" ]; then
+                hardcoded_strings=$(grep -n '"[A-Za-z]' "$file" | grep -v 'LocalizedStringKey\|NSLocalizedString\|#if\|#endif\|import\|//' || true)
+                if [ -n "$hardcoded_strings" ]; then
+                  echo "⚠️ Potential hardcoded strings in \`$file\`:" >> $GITHUB_STEP_SUMMARY
+                  echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+                  echo "$hardcoded_strings" >> $GITHUB_STEP_SUMMARY
+                  echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+                fi
+              fi
+            done
+          else
+            echo "- ℹ️ No Swift files changed in this PR" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  agent-validation-summary:
+    name: Agent Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-structure, validate-localization]
+    if: always()
+    steps:
+      - name: Create validation summary
+        run: |
+          echo "## 🤖 Agent Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This PR has been validated for automated coding agent compliance." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Validation Results:" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.validate-structure.result }}" == "success" ]; then
+            echo "- ✅ **Repository Structure**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Repository Structure**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.validate-localization.result }}" == "success" ]; then
+            echo "- ✅ **Localization Check**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Localization Check**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "- Review automated validation results above" >> $GITHUB_STEP_SUMMARY
+          echo "- Ensure all quality gates are met" >> $GITHUB_STEP_SUMMARY
+          echo "- Add unit tests for any behavioral changes" >> $GITHUB_STEP_SUMMARY
+          echo "- Update localization files if UI text was added" >> $GITHUB_STEP_SUMMARY
