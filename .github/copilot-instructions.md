@@ -20,6 +20,29 @@ Onyx Terminal is an iOS SSH terminal application with SFTP support and ML model 
    - Use `@StateObject` for view models and services
    - Use `@State` for local view state
    - Use `@AppStorage` for persistent user preferences
+````instructions
+# GitHub Copilot Instructions for Onyx Terminal
+
+## Project Overview
+
+Onyx Terminal is an iOS SSH terminal application with SFTP support and ML model command shortcuts. The project is built using:
+- **Language**: Swift 5.9+
+- **Framework**: SwiftUI
+- **Platform**: iOS 16.0+
+- **Dependencies**: SwiftTerm, Shout (libssh2), swift-nio-ssh
+- **Build Tool**: XcodeGen
+- **Project Structure**: Single-target iOS app with modular organization
+
+## Coding Standards
+
+### Swift Style Guidelines
+
+1. **Language**: Use Swift 5.9 features and conventions
+2. **UI Framework**: Use SwiftUI for all UI components
+3. **State Management**: 
+   - Use `@StateObject` for view models and services
+   - Use `@State` for local view state
+   - Use `@AppStorage` for persistent user preferences
 4. **Naming Conventions**:
    - Use camelCase for variables and functions
    - Use PascalCase for types (classes, structs, enums)
@@ -170,3 +193,59 @@ Onyx Terminal is an iOS SSH terminal application with SFTP support and ML model 
 - Verify Xcode project generates correctly with `xcodegen`
 - Document breaking changes clearly
 - Include screenshots for UI changes
+
+## Agent onboarding and scope (for automated coding agents)
+
+These additional notes are intended for automated coding agents (for example GitHub Copilot coding agent) that are performing changes in this repository. Follow these rules in addition to the repository guidance above.
+
+- Purpose: safely implement small-to-medium code changes, tests, documentation, and CI updates. Avoid large design shifts without human review.
+- One change per pull request: keep PRs focused and small. Include a clear description, a short testing checklist, and localization updates if UI text changed.
+
+Allowed edits (examples):
+- Fix bugs in `Sources/**` and `Tests/**`.
+- Add unit tests in `Tests/Unit/**` for new behaviors.
+- Update `project.yml` and regenerate Xcode project entries if dependency changes are required.
+- Add or update `.github/workflows/*` CI jobs to run tests or linters.
+
+Disallowed edits:
+- Do not add or modify deployment credentials, fastlane secrets, or other secret management files.
+- Do not modify `fastlane/Fastfile` deployment logic without explicit human approval.
+
+Agent behavior and checks:
+- Write or update at least one unit test for any behavioral code change. If tests cannot run in this environment (Xcode required), include clear manual verification steps in the PR body.
+- Follow localization rules: all user-facing strings must be added to `Sources/App/Resources/*/Localizable.strings` and use `LocalizedStringKey` in SwiftUI code.
+- Preserve existing code style and file organization. Prefer small, well-tested commits.
+
+Quality gates for automated edits:
+- Build: Validate that `xcodegen generate` runs without error locally (note: actual Xcode build cannot be run here). If changing package dependencies, update `project.yml` and document the generation step.
+- Tests: Add unit tests under `Tests/Unit` where practical. If adding Swift tests, ensure they compile (best-effort) and reference existing test targets.
+- Lint/Typecheck: Respect Swift style guidelines above; avoid using language features that reduce compatibility with Swift 5.9/iOS 16.
+
+When in doubt, create a draft pull request and add the maintainers as reviewers. Mark PR description with `WIP` and include a short rationale and verification steps.
+
+Contact/owners:
+- Primary repo owner: ONX999 (see repository settings for CODEOWNERS). Use PR reviewers for human approval on sensitive changes.
+
+## How to run local checks (for contributors and agents)
+
+- Generate Xcode project (requires xcodegen installed on macOS):
+
+  ```bash
+  # install xcodegen (macOS Homebrew)
+  brew install xcodegen
+  # generate project
+  xcodegen generate
+  ```
+
+- Run repository structure check (Linux/macOS):
+
+  ```bash
+  ./Tools/check-structure.sh
+  ```
+
+- Tests: There is a `Tests` folder with unit and UI tests. Running tests requires Xcode. If you cannot run Xcode in your environment, include manual verification steps in PRs.
+
+Notes:
+- Automated agents should prefer adding unit tests under `Tests/Unit` for behavioral changes. If a full Xcode run is not possible in CI, add clear manual verification steps in the PR.
+
+````
