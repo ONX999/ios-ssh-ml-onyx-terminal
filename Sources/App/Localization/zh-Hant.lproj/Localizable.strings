@@ -1,0 +1,71 @@
+/* Connection Section */
+"section.connection" = "連線設定";
+"field.host" = "Host/IP";
+"field.port" = "Port";
+"field.username" = "Username";
+"field.password" = "Password";
+"toggle.connect_sftp" = "同時連線 SFTP";
+"btn.connect" = "連線";
+"btn.disconnect" = "斷線";
+
+/* Connection Status */
+"status.not_connected" = "未連線";
+"status.connecting" = "連線中 %@";
+"status.connected" = "已連線：%@";
+"status.connect_failed" = "連線失敗：%@";
+"status.disconnected" = "已斷線";
+
+/* Language Section */
+"section.language" = "語言";
+"picker.language" = "應用程式語言";
+"language.zh" = "中文（繁體）";
+"language.en" = "English";
+"hint.language_effect" = "切換後立即生效。";
+
+/* UI Messages */
+"ui.not_connected" = "尚未連線";
+"ui.fill_then_connect" = "填妥連線資訊後按「連線」";
+
+/* Menu Items */
+"menu.clear" = "清除終端畫面";
+"menu.resize" = "重新調整大小";
+
+/* SFTP Status */
+"sftp.not_connected" = "SFTP 未連線";
+"sftp.need_connect" = "請先連線 SFTP（啟用「同時連線 SFTP」並按連線）";
+"sftp.connected" = "SFTP 已連線";
+"sftp.connect_failed" = "SFTP 連線失敗：%@";
+
+/* SFTP UI */
+"label.upload_to" = "上傳到：";
+"label.download_path" = "下載路徑：";
+"label.list_dir" = "列目錄：";
+"ph.remote_dir" = "遠端目錄，例如：~/models";
+"ph.remote_file" = "遠端檔案，例如：~/output.log";
+"btn.select_upload" = "選擇檔案上傳";
+"btn.download_to_device" = "下載到本機…";
+"btn.list" = "列出";
+"btn.done" = "完成";
+"btn.ok" = "OK";
+
+/* Sheets and Alerts */
+"sheet.dir_list" = "目錄清單";
+"alert.title" = "提示";
+"alert.fill_all" = "請完整填寫資訊";
+
+/* Toast Messages */
+"toast.upload_ok" = "上傳成功：%@ -> %@";
+"toast.upload_fail" = "上傳失敗：%@";
+"toast.download_fail" = "下載失敗：%@";
+"toast.list_fail" = "列目錄失敗：%@";
+
+/* Directory Info */
+"dir.path" = "目錄：%@";
+
+/* Quick Actions */
+"qa.llama_help" = "llama --help";
+"qa.ollama_llama3" = "ollama llama3";
+"qa.hf_env" = "HF 環境";
+"qa.conda_envs" = "conda 環境";
+"qa.tmux_attach" = "tmux attach";
+"qa.nvidia_smi" = "nvidia-smi";

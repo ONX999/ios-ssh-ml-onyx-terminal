@@ -23,6 +23,8 @@ targets:
       - path: Sources/App
       - path: Sources/Features
       - path: Sources/Core
+    resources:
+      - path: Sources/App/Localization
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.onx999.OnyxTerminal

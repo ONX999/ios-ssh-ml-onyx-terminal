@@ -98,14 +98,51 @@ platform :ios do
 
   desc "Deploy to TestFlight"
   lane :beta do
-    # TODO: Configure App Store Connect API credentials
-    UI.important("⚠️  TestFlight deployment requires App Store Connect API setup")
-    UI.important("📝 TODO: Configure ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY")
-    
-    # Uncomment and configure when ready:
-    # build_release
-    # upload_to_testflight(
-    #   skip_waiting_for_build_processing: true
-    # )
+    # Generate Xcode project if needed
+    if !File.exist?("OnyxTerminal.xcodeproj")
+      sh("xcodegen generate")
+    end
+
+    # Create App Store Connect API Key from environment variables
+    api_key = app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_content: Base64.decode64(ENV["ASC_PRIVATE_KEY"]),
+      duration: 1200, # optional (maximum 1200)
+      in_house: false
+    )
+
+    # Increment build number based on latest TestFlight build
+    increment_build_number(
+      build_number: latest_testflight_build_number(
+        api_key: api_key,
+        app_identifier: "com.onx999.OnyxTerminal"
+      ) + 1
+    )
+
+    # Build the app for release
+    gym(
+      workspace: "OnyxTerminal.xcworkspace",
+      scheme: "OnyxTerminal",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "fastlane/build_output",
+      output_name: "OnyxTerminal-Release.ipa",
+      clean: true,
+      export_options: {
+        provisioningProfiles: {
+          "com.onx999.OnyxTerminal" => "match AppStore com.onx999.OnyxTerminal"
+        }
+      }
+    )
+
+    # Upload to TestFlight
+    pilot(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true,
+      distribute_external: false, # Internal testing only by default
+      notify_external_testers: false,
+      ipa: "fastlane/build_output/OnyxTerminal-Release.ipa"
+    )
   end
 end
