@@ -4,6 +4,10 @@ options:
   deploymentTarget:
     iOS: "16.0"
   bundleIdPrefix: com.onx999
+  developmentLanguage: zh-Hant
+  knownRegions:
+    - zh-Hant
+    - en
 packages:
   SwiftTerm:
     url: https://github.com/migueldeicaza/SwiftTerm
