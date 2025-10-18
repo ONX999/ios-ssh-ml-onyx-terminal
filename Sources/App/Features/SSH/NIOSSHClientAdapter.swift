@@ -41,7 +41,10 @@ public final class NIOSSHClientAdapter: SSHClientProtocol {
             host: config.host,
             port: config.port,
             username: config.username,
-            password: password
+            password: password,
+            terminalType: config.terminalType,
+            cols: config.cols,
+            rows: config.rows
         )
         
         try await client.connect(nioConfig)
