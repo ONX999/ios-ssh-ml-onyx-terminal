@@ -11,5 +11,12 @@
 	</dict>
 	<key>CFBundleDisplayName</key>
 	<string>Onyx Terminal</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh-Hant</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>zh-Hant</string>
+		<string>en</string>
+	</array>
 </dict>
 </plist>
